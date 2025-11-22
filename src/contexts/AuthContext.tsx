@@ -25,7 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
 const ALLOWED_EMAILS = [
   'waiyanlarge@gmail.com',
-  'waiyanaung.mkt@gmail.com', // <--- Added specifically for you
+  'waiyanaung.mkt@gmail.com', // <--- Added explicitly
   'admin@gmail.com',
 ];
 
@@ -39,8 +39,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(user);
       if (user && user.email) {
         // Check if email exists in the allowed list (case-insensitive and trimmed)
+        // trim() removes accidental spaces from copy-pasting
         const userEmail = user.email.toLowerCase().trim();
-        const allowed = ALLOWED_EMAILS.map(e => e.toLowerCase().trim()).includes(userEmail);
+        
+        console.log("Checking login for:", userEmail); // For debugging
+        
+        const allowed = ALLOWED_EMAILS.some(allowedEmail => 
+          allowedEmail.toLowerCase().trim() === userEmail
+        );
+        
+        console.log("Is Allowed?", allowed); // For debugging
+        
         setIsWhitelisted(allowed);
       } else {
         setIsWhitelisted(false);
