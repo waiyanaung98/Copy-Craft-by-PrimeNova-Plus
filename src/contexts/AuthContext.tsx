@@ -25,8 +25,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
 const ALLOWED_EMAILS = [
   'waiyanlarge@gmail.com',      // Owner
-  'waiyanaung.mkt@gmail.com',   // <--- ADDED THIS USER
+  'waiyanaung.mkt@gmail.com',   // <--- ADDED: Your marketing email
   'admin@gmail.com',            // Example
+  // 'friend@gmail.com',        // <--- Add new emails like this
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -55,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
+      // alert("Failed to sign in. Please check your popup blocker or try again.");
     }
   };
 
