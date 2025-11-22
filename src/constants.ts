@@ -207,6 +207,16 @@ export const TRANSLATIONS = {
     [Language.MY]: 'သင့် Email သည် ခွင့်ပြုစာရင်းထဲတွင်မရှိပါ။ Admin ကိုဆက်သွယ်ပါ။',
     [Language.TH]: 'อีเมลของคุณไม่อยู่ในรายการที่อนุญาต'
   },
+  pendingTitle: {
+    [Language.EN]: 'Account Pending Approval',
+    [Language.MY]: 'ခွင့်ပြုချက်စောင့်ဆိုင်းနေသည်',
+    [Language.TH]: 'รอการอนุมัติบัญชี'
+  },
+  pendingDesc: {
+    [Language.EN]: 'Your request has been sent. Please wait for an administrator to activate your account.',
+    [Language.MY]: 'သင့်အကောင့်ဖွင့်ရန်တောင်းဆိုမှု ပေးပို့ပြီးပါပြီ။ Admin ခွင့်ပြုချက်ရသည်အထိ စောင့်ဆိုင်းပေးပါ။',
+    [Language.TH]: 'ส่งคำขอแล้ว กรุณารอผู้ดูแลระบบอนุมัติบัญชีของคุณ'
+  },
   signOut: {
     [Language.EN]: 'Sign Out',
     [Language.MY]: 'အကောင့်ထွက်မည်',

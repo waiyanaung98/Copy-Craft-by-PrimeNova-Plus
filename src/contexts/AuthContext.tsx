@@ -5,7 +5,7 @@ import {
   signOut as firebaseSignOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase';
 
 interface AuthContextType {
@@ -15,6 +15,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isWhitelisted: boolean;
   permissionCheckLoading: boolean;
+  isPending: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [permissionCheckLoading, setPermissionCheckLoading] = useState(false);
 
   useEffect(() => {
@@ -32,28 +34,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user && user.email) {
         setPermissionCheckLoading(true);
         try {
-          // Check if a document exists with the ID of the user's email
-          // Collection name: "allowed_users"
-          // Document ID: "user@email.com"
-          const docRef = doc(db, "allowed_users", user.email);
-          const docSnap = await getDoc(docRef);
+          const userRef = doc(db, "allowed_users", user.email);
+          const docSnap = await getDoc(userRef);
 
           if (docSnap.exists()) {
-            setIsWhitelisted(true);
+            // User exists, check if active
+            const data = docSnap.data();
+            if (data.active === true) {
+              setIsWhitelisted(true);
+              setIsPending(false);
+            } else {
+              setIsWhitelisted(false);
+              setIsPending(true); // Pending Admin Approval
+            }
           } else {
-            // Fallback: Try lowercase just in case
-             const lowerDocRef = doc(db, "allowed_users", user.email.toLowerCase());
-             const lowerDocSnap = await getDoc(lowerDocRef);
-             setIsWhitelisted(lowerDocSnap.exists());
+            // User DOES NOT exist -> Auto Request Access
+            // Create document with active: false
+            await setDoc(userRef, {
+              email: user.email,
+              active: false,
+              createdAt: new Date().toISOString(),
+              displayName: user.displayName,
+              photoURL: user.photoURL
+            });
+            
+            setIsWhitelisted(false);
+            setIsPending(true); // Automatically pending
           }
         } catch (error) {
-          console.error("Error checking whitelist database:", error);
+          console.error("Error verifying user in database:", error);
+          // On error, default to false to be safe
           setIsWhitelisted(false);
+          setIsPending(false);
         } finally {
           setPermissionCheckLoading(false);
         }
       } else {
         setIsWhitelisted(false);
+        setIsPending(false);
         setPermissionCheckLoading(false);
       }
       
@@ -74,13 +92,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await firebaseSignOut(auth);
+      setIsWhitelisted(false);
+      setIsPending(false);
     } catch (error) {
       console.error("Error signing out", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading }}>
+    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading, isPending }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogIn, ShieldAlert, PenLine, Loader2 } from 'lucide-react';
+import { ShieldAlert, PenLine, Loader2, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -9,9 +9,9 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading } = useAuth() as any;
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading, isPending } = useAuth() as any;
 
-  // State 1: Logged in but checking database
+  // State 1: Checking
   if (currentUser && permissionCheckLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -21,26 +21,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             Verifying Access...
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            Checking permissions for {currentUser.email}
+            Checking database for {currentUser.email}
           </p>
         </div>
       </div>
     );
   }
 
-  // State 2: Logged in but NOT in database (Access Denied)
-  if (currentUser && !isWhitelisted) {
+  // State 2: Pending Approval
+  if (currentUser && isPending) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-red-100 dark:border-red-900/30">
-          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShieldAlert className="text-red-500" size={32} />
+        <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-orange-200 dark:border-orange-900/30">
+          <div className="w-16 h-16 bg-orange-50 dark:bg-orange-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Clock className="text-orange-500" size={32} />
           </div>
           <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
-            {TRANSLATIONS.accessDeniedTitle[currentLang]}
+            {TRANSLATIONS.pendingTitle[currentLang]}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6">
-            {TRANSLATIONS.accessDeniedDesc[currentLang]}
+            {TRANSLATIONS.pendingDesc[currentLang]}
             <br/>
             <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block">
               {currentUser.email}
@@ -57,7 +57,32 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 3: Not logged in
+  // State 3: Access Denied (Fallback for older records or rejected)
+  if (currentUser && !isWhitelisted) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-red-100 dark:border-red-900/30">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShieldAlert className="text-red-500" size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
+            {TRANSLATIONS.accessDeniedTitle[currentLang]}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">
+            {TRANSLATIONS.accessDeniedDesc[currentLang]}
+          </p>
+          <button
+            onClick={logout}
+            className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          >
+            {TRANSLATIONS.signOut[currentLang]}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // State 4: Not logged in
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
