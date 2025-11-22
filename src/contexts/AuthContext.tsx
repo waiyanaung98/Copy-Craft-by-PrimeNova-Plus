@@ -5,7 +5,7 @@ import {
   signOut as firebaseSignOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase';
 
 interface AuthContextType {
@@ -14,7 +14,6 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isWhitelisted: boolean;
-  isPending: boolean;
   permissionCheckLoading: boolean;
 }
 
@@ -24,7 +23,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
-  const [isPending, setIsPending] = useState(false);
   const [permissionCheckLoading, setPermissionCheckLoading] = useState(false);
 
   useEffect(() => {
@@ -34,51 +32,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user && user.email) {
         setPermissionCheckLoading(true);
         try {
-          // 1. Check if user exists in Firestore 'allowed_users' collection
-          // We use the email as the Document ID for easy lookup
+          // STRICT CHECK: Only look for existing document in Firestore
+          // Collection: allowed_users
+          // Document ID: user's email
           const userRef = doc(db, "allowed_users", user.email);
           const docSnap = await getDoc(userRef);
 
           if (docSnap.exists()) {
-            // User exists - check if they are active
             const data = docSnap.data();
+            // Check if the 'active' field is true
             if (data.active === true) {
+              console.log("User authorized:", user.email);
               setIsWhitelisted(true);
-              setIsPending(false);
             } else {
-              // Exist but not active -> Pending
+              console.log("User exists but is inactive:", user.email);
               setIsWhitelisted(false);
-              setIsPending(true);
             }
           } else {
-            // User DOES NOT exist -> Auto-Request Access
-            // Create the document with active: false
-            console.log("Creating new user request for:", user.email);
-            
-            await setDoc(userRef, {
-              email: user.email,
-              active: false, // Default to false, waiting for admin
-              createdAt: new Date().toISOString(),
-              displayName: user.displayName || '',
-              photoURL: user.photoURL || ''
-            });
-            
-            // Set state to pending immediately
+            // Document does not exist -> User is not pre-filled -> DENY
+            console.log("User not found in whitelist:", user.email);
             setIsWhitelisted(false);
-            setIsPending(true);
           }
         } catch (error) {
-          console.error("Error checking/creating user permissions:", error);
-          // Default to safe state
+          console.error("Error checking permissions:", error);
           setIsWhitelisted(false);
-          setIsPending(false);
         } finally {
           setPermissionCheckLoading(false);
         }
       } else {
-        // Not logged in
         setIsWhitelisted(false);
-        setIsPending(false);
         setPermissionCheckLoading(false);
       }
       
@@ -100,14 +82,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await firebaseSignOut(auth);
       setIsWhitelisted(false);
-      setIsPending(false);
     } catch (error) {
       console.error("Error signing out", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, isPending, permissionCheckLoading }}>
+    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading }}>
       {children}
     </AuthContext.Provider>
   );

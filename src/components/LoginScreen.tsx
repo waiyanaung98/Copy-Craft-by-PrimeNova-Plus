@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, PenLine, Loader2, Clock } from 'lucide-react';
+import { ShieldAlert, PenLine, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -9,9 +9,9 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading, isPending } = useAuth();
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading } = useAuth();
 
-  // State 1: Checking Permissions (Loading)
+  // State 1: Checking Database (Loading)
   if (currentUser && permissionCheckLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -21,43 +21,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             Verifying Access...
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            Checking permissions for {currentUser.email}
+            Checking permission database for<br/>
+            <span className="font-mono font-bold">{currentUser.email}</span>
           </p>
         </div>
       </div>
     );
   }
 
-  // State 2: Account Pending Approval
-  if (currentUser && isPending) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-orange-200 dark:border-orange-900/30">
-          <div className="w-16 h-16 bg-orange-50 dark:bg-orange-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Clock className="text-orange-500" size={32} />
-          </div>
-          <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
-            {TRANSLATIONS.pendingTitle[currentLang]}
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
-            {TRANSLATIONS.pendingDesc[currentLang]}
-            <br/>
-            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block">
-              {currentUser.email}
-            </span>
-          </p>
-          <button
-            onClick={logout}
-            className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-          >
-            {TRANSLATIONS.signOut[currentLang]}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // State 3: Access Denied (Fallback)
+  // State 2: Access Denied (Not in Database or Inactive)
   if (currentUser && !isWhitelisted) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -68,10 +40,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
             {TRANSLATIONS.accessDeniedTitle[currentLang]}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
-            {TRANSLATIONS.accessDeniedDesc[currentLang]}
+          <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
+            This email is not in the authorized list.<br/>
+            Please contact the administrator to add:
             <br/>
-            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block">
+            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block select-all">
               {currentUser.email}
             </span>
           </p>
@@ -86,7 +59,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 4: Not Logged In
+  // State 3: Not Logged In
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
