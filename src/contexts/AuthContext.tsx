@@ -26,7 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const ALLOWED_EMAILS = [
   'waiyanlarge@gmail.com',      // Owner
   'waiyanaung.mkt@gmail.com',   // <--- Added specific access for this email
-  'admin@gmail.com',            // Example
+  'yan.waiyanaung@gmail.com',            // Example
   // 'friend@gmail.com',        // <--- Add new emails like this
 ];
 
