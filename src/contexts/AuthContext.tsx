@@ -20,14 +20,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // Default isWhitelisted to true once logged in, effectively disabling the whitelist
   const [isWhitelisted, setIsWhitelisted] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      // OPEN ACCESS: If a user is logged in, they are automatically whitelisted/allowed.
-      // No specific email list check is performed.
       if (user) {
+        // OPEN ACCESS: Allow ANY logged-in user
         setIsWhitelisted(true);
       } else {
         setIsWhitelisted(false);
