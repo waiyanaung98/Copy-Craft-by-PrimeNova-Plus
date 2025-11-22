@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, PenLine, Loader2, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, PenLine, Loader2, AlertTriangle, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -9,7 +9,7 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading, authError } = useAuth();
+  const { signInWithGoogle, currentUser, isWhitelisted, isPending, logout, permissionCheckLoading, authError } = useAuth();
 
   // State 1: Checking Database (Loading)
   if (currentUser && permissionCheckLoading) {
@@ -29,8 +29,40 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 2: Access Denied (Not in Database or Error)
-  if (currentUser && !isWhitelisted) {
+  // State 2: Pending Approval
+  if (currentUser && isPending) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-yellow-100 dark:border-yellow-900/30">
+          <div className="w-16 h-16 bg-yellow-50 dark:bg-yellow-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Clock className="text-yellow-500" size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
+            {TRANSLATIONS.pendingTitle[currentLang]}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
+            {TRANSLATIONS.pendingDesc[currentLang]}
+          </p>
+          
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg mb-6 text-left">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1">Your Account:</p>
+            <p className="text-sm font-mono text-[#1E2A38] dark:text-slate-200 break-all">{currentUser.email}</p>
+            <p className="text-xs text-[#31d190] mt-1 font-bold">Status: Waiting for Admin</p>
+          </div>
+
+          <button
+            onClick={logout}
+            className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          >
+            {TRANSLATIONS.signOut[currentLang]}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // State 3: Access Denied (Blocked or Error)
+  if (currentUser && !isWhitelisted && !isPending) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
         <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-red-100 dark:border-red-900/30">
@@ -60,9 +92,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg mb-6 text-left">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1">You are logged in as:</p>
             <p className="text-sm font-mono text-[#1E2A38] dark:text-slate-200 break-all">{currentUser.email}</p>
-            <p className="text-xs text-slate-400 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-              Required Collection: <span className="font-mono text-slate-500">allowed_users</span>
-            </p>
           </div>
 
           <button
@@ -76,7 +105,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 3: Not Logged In
+  // State 4: Not Logged In
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
