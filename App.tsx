@@ -5,23 +5,21 @@ import { InputForm } from './components/InputForm';
 import { OutputDisplay } from './components/OutputDisplay';
 import { BrandManager } from './components/BrandManager';
 import { ApiKeyModal } from './components/ApiKeyModal';
-import { LoginScreen } from './components/LoginScreen';
 import { Language, Framework, Tone, ContentRequest, ContentPillar, BrandProfile } from './types';
 import { generateCopy } from './services/geminiService';
-import { TRANSLATIONS, DEFAULT_BRANDS } from './constants';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { DEFAULT_BRANDS } from './constants';
 
-const AppContent: React.FC = () => {
-  const { currentUser, loading: authLoading, isWhitelisted } = useAuth();
-  
+const App: React.FC = () => {
   // UI Language default to English
   const [uiLanguage] = useState<Language>(Language.EN);
   
   // Theme State
   const [isDarkMode, setIsDarkMode] = useState(false);
   
-  // API Key State
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  // API Key State - Initialize from localStorage
+  const [apiKey, setApiKey] = useState<string | null>(() => {
+    return localStorage.getItem('gemini_api_key');
+  });
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
   
   const [loading, setLoading] = useState(false);
@@ -45,19 +43,13 @@ const AppContent: React.FC = () => {
   // Scroll to results when generated
   const resultRef = useRef<HTMLDivElement>(null);
 
-  // Load API Key from Local Storage on Mount
+  // Effect: Check for API Key on mount
   useEffect(() => {
-    const storedKey = localStorage.getItem('gemini_api_key');
-    
-    // Priority: Local Storage -> Env Var (optional fallback)
-    if (storedKey) {
-      setApiKey(storedKey);
-    } else if (process.env.API_KEY) {
-      setApiKey(process.env.API_KEY);
-    } else {
-      // No key found
+    if (!apiKey) {
+      // If no key is found in storage, force open the modal
+      setIsKeyModalOpen(true);
     }
-  }, []);
+  }, [apiKey]);
 
   // Effect: Handle Dark Mode Class
   useEffect(() => {
@@ -101,6 +93,7 @@ const AppContent: React.FC = () => {
   const handleSaveKey = (key: string) => {
     setApiKey(key);
     localStorage.setItem('gemini_api_key', key);
+    setIsKeyModalOpen(false);
   };
 
   const handleRemoveKey = () => {
@@ -150,23 +143,9 @@ const AppContent: React.FC = () => {
     }));
   };
 
-  // AUTHENTICATION CHECK
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#31d190]"></div>
-      </div>
-    );
-  }
-
-  if (!currentUser || !isWhitelisted) {
-    return <LoginScreen currentLang={uiLanguage} />;
-  }
-
-  // Main App
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col font-sans transition-colors duration-300">
-      {/* Show Key Modal */}
+      {/* Show Key Modal - Forced open if no key exists */}
       <ApiKeyModal 
         isOpen={isKeyModalOpen}
         onClose={() => apiKey && setIsKeyModalOpen(false)}
@@ -257,14 +236,6 @@ const AppContent: React.FC = () => {
         </p>
       </footer>
     </div>
-  );
-};
-
-const App: React.FC = () => {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   );
 };
 

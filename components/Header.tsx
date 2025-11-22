@@ -1,8 +1,7 @@
 import React from 'react';
-import { PenLine, Moon, Sun, Key, LogOut } from 'lucide-react';
+import { PenLine, Moon, Sun, Key } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../constants';
-import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   currentLang: Language;
@@ -19,8 +18,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenKeySettings,
   hasKey
 }) => {
-  const { currentUser, logout } = useAuth();
-
   return (
     <header className="bg-white dark:bg-[#1E2A38] border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10 shadow-sm transition-colors duration-300">
       <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -62,30 +59,6 @@ export const Header: React.FC<HeaderProps> = ({
            >
              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
            </button>
-
-           {/* User Profile / Logout */}
-           {currentUser && (
-             <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700">
-               {currentUser.photoURL ? (
-                 <img 
-                   src={currentUser.photoURL} 
-                   alt="User" 
-                   className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-600"
-                 />
-               ) : (
-                 <div className="w-8 h-8 rounded-full bg-[#31d190] flex items-center justify-center text-white font-bold text-xs">
-                   {currentUser.email?.charAt(0).toUpperCase()}
-                 </div>
-               )}
-               <button 
-                 onClick={logout}
-                 className="p-2 rounded-full bg-slate-50 dark:bg-[#0f172a] text-slate-500 hover:text-red-500 hover:bg-red-50 transition-colors"
-                 title="Sign Out"
-               >
-                 <LogOut size={18} />
-               </button>
-             </div>
-           )}
         </div>
       </div>
     </header>
