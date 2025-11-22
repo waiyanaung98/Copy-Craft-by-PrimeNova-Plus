@@ -24,10 +24,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Only emails in this list can access the app.
 // နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
 const ALLOWED_EMAILS = [
-  'waiyanlarge@gmail.com',      // Owner
-  'waiyanaung.mkt@gmail.com',   // <--- Added specific access for this email
-  'admin@gmail.com',            // Example
-  // 'friend@gmail.com',        // <--- Add new emails like this
+  'waiyanlarge@gmail.com',
+  'waiyanaung.mkt@gmail.com', // <--- Added specifically for you
+  'admin@gmail.com',
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -39,8 +38,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       if (user && user.email) {
-        // Check if email exists in the allowed list (case-insensitive)
-        const allowed = ALLOWED_EMAILS.map(e => e.toLowerCase().trim()).includes(user.email.toLowerCase().trim());
+        // Check if email exists in the allowed list (case-insensitive and trimmed)
+        const userEmail = user.email.toLowerCase().trim();
+        const allowed = ALLOWED_EMAILS.map(e => e.toLowerCase().trim()).includes(userEmail);
         setIsWhitelisted(allowed);
       } else {
         setIsWhitelisted(false);
