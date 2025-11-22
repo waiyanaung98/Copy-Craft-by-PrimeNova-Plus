@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
+// Hardcoded for immediate stability
 const firebaseConfig = {
   apiKey: "AIzaSyC4EBS7ViksVjkswAmaIkADLudBQBRzuPs",
   authDomain: "wai-yan-news.firebaseapp.com",
