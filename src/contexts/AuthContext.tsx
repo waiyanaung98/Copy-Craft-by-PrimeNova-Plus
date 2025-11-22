@@ -25,7 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
 const ALLOWED_EMAILS = [
   'waiyanlarge@gmail.com',      // Owner
-  'waiyanaung.mkt@gmail.com',   // Added User
+  'waiyanaung.mkt@gmail.com',   // <--- ADDED THIS USER
   'admin@gmail.com',            // Example
 ];
 
