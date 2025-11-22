@@ -34,20 +34,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (user && user.email) {
         setPermissionCheckLoading(true);
+        // Ensure lowercase for consistent matching
         const emailKey = user.email.toLowerCase().trim();
 
         try {
-          // Check directly in Firestore
+          // Check directly in Firestore Database
+          // Path: allowed_users/{email}
           const userRef = doc(db, COLLECTION_NAME, emailKey);
           const docSnap = await getDoc(userRef);
 
           if (docSnap.exists() && docSnap.data().active === true) {
-             // User is found AND active is true
+             // User is found AND active is set to true
              setIsWhitelisted(true);
           } else {
              // User not found OR active is false
              setIsWhitelisted(false);
-             console.log("User not found in whitelist or inactive:", emailKey);
+             console.log("Access Denied: Email not found in 'allowed_users' collection or inactive:", emailKey);
           }
         } catch (error) {
           console.error("Database Check Error:", error);
@@ -69,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
-      console.error("Error signing in", error);
+      console.error("Error signing in with Google", error);
     }
   };
 
