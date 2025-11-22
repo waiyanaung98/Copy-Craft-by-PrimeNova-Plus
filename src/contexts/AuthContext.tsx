@@ -38,17 +38,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       if (user && user.email) {
-        // Check if email exists in the allowed list (case-insensitive and trimmed)
-        // trim() removes accidental spaces from copy-pasting
+        // Normalize email: lowercase and trim spaces
         const userEmail = user.email.toLowerCase().trim();
         
-        console.log("Checking login for:", userEmail); // For debugging
-        
+        console.log("Checking login for:", userEmail); 
+        console.log("Allowed list:", ALLOWED_EMAILS);
+
+        // Check if email exists in the allowed list
         const allowed = ALLOWED_EMAILS.some(allowedEmail => 
           allowedEmail.toLowerCase().trim() === userEmail
         );
-        
-        console.log("Is Allowed?", allowed); // For debugging
         
         setIsWhitelisted(allowed);
       } else {

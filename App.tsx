@@ -5,14 +5,11 @@ import { InputForm } from './components/InputForm';
 import { OutputDisplay } from './components/OutputDisplay';
 import { BrandManager } from './components/BrandManager';
 import { ApiKeyModal } from './components/ApiKeyModal';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { LoginScreen } from './components/LoginScreen';
 import { Language, Framework, Tone, ContentRequest, ContentPillar, BrandProfile } from './types';
 import { generateCopy } from './services/geminiService';
 import { TRANSLATIONS, DEFAULT_BRANDS } from './constants';
 
-const AppContent: React.FC = () => {
-  const { currentUser, isWhitelisted, loading: authLoading } = useAuth();
+const App: React.FC = () => {
   
   // UI Language default to English
   const [uiLanguage] = useState<Language>(Language.EN);
@@ -55,7 +52,7 @@ const AppContent: React.FC = () => {
     } else if (process.env.API_KEY) {
       setApiKey(process.env.API_KEY);
     } else {
-      // No key found, but we wait until login check is done before popping modal
+      // No key found
     }
   }, []);
 
@@ -150,24 +147,10 @@ const AppContent: React.FC = () => {
     }));
   };
 
-  // Auth Loading State
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0f172a]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#31d190]"></div>
-      </div>
-    );
-  }
-
-  // If not logged in OR not whitelisted, show Login Screen
-  if (!currentUser || !isWhitelisted) {
-    return <LoginScreen currentLang={uiLanguage} />;
-  }
-
-  // Main App (Only reachable if Logged In AND Whitelisted)
+  // Main App (Direct Access - No Auth)
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col font-sans transition-colors duration-300">
-      {/* Show Key Modal only if logged in */}
+      {/* Show Key Modal */}
       <ApiKeyModal 
         isOpen={isKeyModalOpen}
         onClose={() => apiKey && setIsKeyModalOpen(false)}
@@ -258,14 +241,6 @@ const AppContent: React.FC = () => {
         </p>
       </footer>
     </div>
-  );
-};
-
-const App: React.FC = () => {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   );
 };
 
