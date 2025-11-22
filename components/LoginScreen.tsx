@@ -73,7 +73,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
       </div>
       
       <p className="mt-8 text-sm text-slate-400">
-        Powered by <span className="text-[#31d190] font-bold">PrimeNova Digital Solution</span>
+        Powered by <a href="https://web.facebook.com/PrimeNovaDigitalSolution" target="_blank" rel="noopener noreferrer" className="text-[#31d190] font-bold hover:underline">PrimeNova Digital Solution</a>
       </p>
     </div>
   );

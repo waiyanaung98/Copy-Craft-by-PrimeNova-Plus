@@ -22,7 +22,7 @@ const App: React.FC = () => {
   });
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
   
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string | null>(null);
 
   // Brand State
@@ -108,7 +108,7 @@ const App: React.FC = () => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
     setGeneratedContent(null); // Clear previous while loading
     
     try {
@@ -129,7 +129,7 @@ const App: React.FC = () => {
          alert("Something went wrong. Please check your connection.");
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -195,7 +195,7 @@ const App: React.FC = () => {
               request={formData} 
               onChange={setFormData} 
               onSubmit={handleGenerate}
-              isLoading={loading}
+              isLoading={isLoading}
               currentUiLang={uiLanguage}
               selectedBrand={brands.find(b => b.id === selectedBrandId)}
             />
@@ -232,7 +232,7 @@ const App: React.FC = () => {
       
       <footer className="py-6 text-center border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2A38] mt-auto transition-colors">
         <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-          Powered by <span className="text-[#1E2A38] dark:text-[#31d190] font-bold">PrimeNova Digital Solution</span>
+          Powered by <a href="https://web.facebook.com/PrimeNovaDigitalSolution" target="_blank" rel="noopener noreferrer" className="text-[#31d190] font-bold hover:underline">PrimeNova Digital Solution</a>
         </p>
       </footer>
     </div>
