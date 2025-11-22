@@ -1,18 +1,19 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
-// These values must be set in your .env file or Vercel Environment Variables
 const firebaseConfig = {
-  apiKey: (import.meta as any).env.VITE_FIREBASE_API_KEY,
-  authDomain: (import.meta as any).env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: (import.meta as any).env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: (import.meta as any).env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyC4EBS7ViksVjkswAmaIkADLudBQBRzuPs",
+  authDomain: "wai-yan-news.firebaseapp.com",
+  projectId: "wai-yan-news",
+  storageBucket: "wai-yan-news.firebasestorage.app",
+  messagingSenderId: "413693428537",
+  appId: "1:413693428537:web:5033646a7f36db49d21ee8"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app); // Export Firestore database
 export const googleProvider = new GoogleAuthProvider();

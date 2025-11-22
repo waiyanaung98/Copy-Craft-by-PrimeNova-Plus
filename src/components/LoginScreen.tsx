@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogIn, ShieldAlert, PenLine } from 'lucide-react';
+import { LogIn, ShieldAlert, PenLine, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -9,10 +9,27 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout } = useAuth();
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading } = useAuth() as any; // Casting for the new prop
 
+  // State 1: Logged in but checking database
+  if (currentUser && permissionCheckLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
+          <Loader2 className="w-12 h-12 text-[#31d190] animate-spin mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[#1E2A38] dark:text-white mb-2">
+            Verifying Access...
+          </h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
+            Checking permissions for {currentUser.email}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // State 2: Logged in but NOT in database (Access Denied)
   if (currentUser && !isWhitelisted) {
-    // Unauthorized View
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
         <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-red-100 dark:border-red-900/30">
@@ -40,7 +57,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // Login View
+  // State 3: Not logged in
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">

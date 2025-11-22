@@ -5,7 +5,8 @@ import {
   signOut as firebaseSignOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, googleProvider, db } from '../firebase';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -13,6 +14,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isWhitelisted: boolean;
+  permissionCheckLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,21 +22,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // PUBLIC ACCESS MODE
-  // Everyone who logs in is automatically allowed.
-  // If you want to ban users, do it from Firebase Console > Authentication > Users
   const [isWhitelisted, setIsWhitelisted] = useState(false);
+  const [permissionCheckLoading, setPermissionCheckLoading] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       
-      if (user) {
-        // Allow everyone with a valid Google Account
-        setIsWhitelisted(true);
+      if (user && user.email) {
+        setPermissionCheckLoading(true);
+        try {
+          // Check if a document exists with the ID of the user's email
+          // Collection name: "allowed_users"
+          // Document ID: "user@email.com"
+          const docRef = doc(db, "allowed_users", user.email);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setIsWhitelisted(true);
+          } else {
+            // Fallback: Try lowercase just in case
+             const lowerDocRef = doc(db, "allowed_users", user.email.toLowerCase());
+             const lowerDocSnap = await getDoc(lowerDocRef);
+             setIsWhitelisted(lowerDocSnap.exists());
+          }
+        } catch (error) {
+          console.error("Error checking whitelist database:", error);
+          setIsWhitelisted(false);
+        } finally {
+          setPermissionCheckLoading(false);
+        }
       } else {
         setIsWhitelisted(false);
+        setPermissionCheckLoading(false);
       }
       
       setLoading(false);
@@ -48,7 +68,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
-      // alert("Failed to sign in. Please check your popup blocker or try again.");
     }
   };
 
@@ -61,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted }}>
+    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading }}>
       {children}
     </AuthContext.Provider>
   );
