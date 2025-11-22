@@ -188,8 +188,8 @@ export const TRANSLATIONS = {
     [Language.TH]: 'ลบ Key'
   },
   loginDesc: {
-    [Language.EN]: 'Please sign in with your authorized Google account to access CopyCraft.',
-    [Language.MY]: 'CopyCraft ကိုအသုံးပြုရန် ခွင့်ပြုထားသော Google အကောင့်ဖြင့် ဝင်ရောက်ပါ။',
+    [Language.EN]: 'Please sign in with your Google account to access CopyCraft.',
+    [Language.MY]: 'CopyCraft ကိုအသုံးပြုရန် Google အကောင့်ဖြင့် ဝင်ရောက်ပါ။',
     [Language.TH]: 'กรุณาเข้าสู่ระบบด้วยบัญชี Google'
   },
   signInGoogle: {

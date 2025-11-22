@@ -25,7 +25,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      // Allow ANY logged in user (No whitelist restriction)
+      // OPEN ACCESS: If a user is logged in, they are automatically whitelisted/allowed.
+      // No specific email list check is performed.
       if (user) {
         setIsWhitelisted(true);
       } else {
