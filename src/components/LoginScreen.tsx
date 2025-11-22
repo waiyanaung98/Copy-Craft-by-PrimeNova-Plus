@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, PenLine, Loader2, AlertTriangle, Clock } from 'lucide-react';
+import { ShieldAlert, PenLine, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -9,7 +9,7 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, isPending, logout, permissionCheckLoading, authError } = useAuth();
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading } = useAuth();
 
   // State 1: Checking Database (Loading)
   if (currentUser && permissionCheckLoading) {
@@ -21,7 +21,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             Verifying Access...
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            Connecting to database for:<br/>
+            Checking permission for:<br/>
             <span className="font-mono font-bold text-[#31d190]">{currentUser.email}</span>
           </p>
         </div>
@@ -29,42 +29,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 2: Pending Approval (active: false)
-  if (currentUser && isPending) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-yellow-100 dark:border-yellow-900/30">
-          <div className="w-16 h-16 bg-yellow-50 dark:bg-yellow-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Clock className="text-yellow-500" size={32} />
-          </div>
-          <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
-            {TRANSLATIONS.pendingTitle[currentLang] || "Account Pending"}
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
-            {TRANSLATIONS.pendingDesc[currentLang] || "Your request has been sent. Please wait for admin approval."}
-          </p>
-          
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg mb-6 text-left">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1">Your Account:</p>
-            <p className="text-sm font-mono text-[#1E2A38] dark:text-slate-200 break-all">{currentUser.email}</p>
-            <p className="text-xs text-orange-500 mt-1 font-bold flex items-center gap-1">
-               • Status: Pending Admin Action
-            </p>
-          </div>
-
-          <button
-            onClick={logout}
-            className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-          >
-            {TRANSLATIONS.signOut[currentLang]}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // State 3: Access Denied (Blocked or Error)
-  if (currentUser && !isWhitelisted && !isPending) {
+  // State 2: Access Denied (Not in Database)
+  if (currentUser && !isWhitelisted) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
         <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-red-100 dark:border-red-900/30">
@@ -74,28 +40,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
             {TRANSLATIONS.accessDeniedTitle[currentLang]}
           </h2>
-          
-          {/* Error / Debug Info */}
-          {authError ? (
-            <div className="mb-6 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">
-              <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm mb-1">
-                <AlertTriangle size={14} /> Error:
-              </div>
-              <p className="text-xs text-red-500 dark:text-red-300 font-mono break-words">
-                {authError}
-              </p>
-            </div>
-          ) : (
-             <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
-              {TRANSLATIONS.accessDeniedDesc[currentLang]}
-             </p>
-          )}
-
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg mb-6 text-left">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1">You are logged in as:</p>
-            <p className="text-sm font-mono text-[#1E2A38] dark:text-slate-200 break-all">{currentUser.email}</p>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">
+            {TRANSLATIONS.accessDeniedDesc[currentLang]}
+            <br/>
+            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block">
+              {currentUser.email}
+            </span>
+          </p>
+          <div className="text-xs text-slate-400 mb-4">
+            *Admin Note: Add this email to Firestore collection "allowed_users" to grant access.
           </div>
-
           <button
             onClick={logout}
             className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
@@ -107,7 +61,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 4: Not Logged In
+  // State 3: Not Logged In
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">

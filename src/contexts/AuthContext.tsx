@@ -5,7 +5,7 @@ import {
   signOut as firebaseSignOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase';
 
 interface AuthContextType {
@@ -14,66 +14,44 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isWhitelisted: boolean;
-  isPending: boolean;
   permissionCheckLoading: boolean;
-  authError: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Collection Name in Firebase Console
 const COLLECTION_NAME = "allowed_users";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
-  const [isPending, setIsPending] = useState(false);
   const [permissionCheckLoading, setPermissionCheckLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      setAuthError(null);
       setIsWhitelisted(false);
-      setIsPending(false);
       
       if (user && user.email) {
         setPermissionCheckLoading(true);
-        // Use email as the Document ID (lowercase to avoid case issues)
         const emailKey = user.email.toLowerCase().trim();
 
         try {
+          // Check directly in Firestore
           const userRef = doc(db, COLLECTION_NAME, emailKey);
           const docSnap = await getDoc(userRef);
 
-          if (docSnap.exists()) {
-            // User exists in DB, check if active
-            const data = docSnap.data();
-            if (data.active === true) {
-              setIsWhitelisted(true); // Access Granted
-            } else {
-              setIsPending(true); // Access Pending (active is false)
-            }
+          if (docSnap.exists() && docSnap.data().active === true) {
+             // User is found AND active is true
+             setIsWhitelisted(true);
           } else {
-            // User NOT in DB -> Auto Request Access
-            try {
-              await setDoc(userRef, {
-                active: false, // Default to inactive
-                email: user.email,
-                createdAt: new Date().toISOString(),
-                uid: user.uid
-              });
-              setIsPending(true); // Show Pending screen
-            } catch (createErr: any) {
-              console.error("Error creating user request:", createErr);
-              setAuthError("Failed to submit access request. Database permissions might be restricted.");
-            }
+             // User not found OR active is false
+             setIsWhitelisted(false);
+             console.log("User not found in whitelist or inactive:", emailKey);
           }
-        } catch (error: any) {
-          console.error("Firestore Error:", error);
-          setAuthError("Connection error. Please check your internet.");
+        } catch (error) {
+          console.error("Database Check Error:", error);
+          setIsWhitelisted(false);
         } finally {
           setPermissionCheckLoading(false);
         }
@@ -89,11 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async () => {
     try {
-      setAuthError(null);
       await signInWithPopup(auth, googleProvider);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error signing in", error);
-      setAuthError(error.message);
     }
   };
 
@@ -101,15 +77,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await firebaseSignOut(auth);
       setIsWhitelisted(false);
-      setIsPending(false);
-      setAuthError(null);
     } catch (error) {
       console.error("Error signing out", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, isPending, permissionCheckLoading, authError }}>
+    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading }}>
       {children}
     </AuthContext.Provider>
   );
