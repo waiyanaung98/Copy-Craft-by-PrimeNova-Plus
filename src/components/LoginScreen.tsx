@@ -9,7 +9,7 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading } = useAuth() as any; // Casting for the new prop
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading } = useAuth() as any;
 
   // State 1: Logged in but checking database
   if (currentUser && permissionCheckLoading) {
