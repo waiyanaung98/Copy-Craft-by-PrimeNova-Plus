@@ -35,6 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPermissionCheckLoading(true);
         try {
           // 1. Check if user exists in Firestore 'allowed_users' collection
+          // We use the email as the Document ID for easy lookup
           const userRef = doc(db, "allowed_users", user.email);
           const docSnap = await getDoc(userRef);
 
@@ -52,6 +53,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else {
             // User DOES NOT exist -> Auto-Request Access
             // Create the document with active: false
+            console.log("Creating new user request for:", user.email);
+            
             await setDoc(userRef, {
               email: user.email,
               active: false, // Default to false, waiting for admin
@@ -60,12 +63,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               photoURL: user.photoURL || ''
             });
             
-            // Set state to pending
+            // Set state to pending immediately
             setIsWhitelisted(false);
             setIsPending(true);
           }
         } catch (error) {
-          console.error("Error checking user permissions:", error);
+          console.error("Error checking/creating user permissions:", error);
+          // Default to safe state
           setIsWhitelisted(false);
           setIsPending(false);
         } finally {
