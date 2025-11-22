@@ -24,10 +24,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Only emails in this list can access the app.
 // နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
 const ALLOWED_EMAILS = [
-  'waiyanlarge@gmail.com',  // Owner
-  'admin@gmail.com',        // Example
-  'waiyanaung.mkt@gmail.com',        // Example
-  // 'friend@gmail.com',    // <--- Add new emails like this
+  'waiyanlarge@gmail.com',      // Owner
+  'waiyanaung.mkt@gmail.com',   // Added User
+  'admin@gmail.com',            // Example
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
