@@ -14,8 +14,8 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isWhitelisted: boolean;
-  permissionCheckLoading: boolean;
   isPending: boolean;
+  permissionCheckLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,46 +34,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user && user.email) {
         setPermissionCheckLoading(true);
         try {
-          // Reference to the specific user document in 'allowed_users' collection
-          // Document ID is the email address
+          // 1. Check if user exists in Firestore 'allowed_users' collection
           const userRef = doc(db, "allowed_users", user.email);
           const docSnap = await getDoc(userRef);
 
           if (docSnap.exists()) {
-            // User exists in DB, check if they are active
+            // User exists - check if they are active
             const data = docSnap.data();
             if (data.active === true) {
               setIsWhitelisted(true);
               setIsPending(false);
             } else {
-              // User is in DB but active is false (or missing)
+              // Exist but not active -> Pending
               setIsWhitelisted(false);
-              setIsPending(true); // Pending Admin Approval
+              setIsPending(true);
             }
           } else {
-            // User DOES NOT exist -> Auto Request Access
-            // Create document with active: false
+            // User DOES NOT exist -> Auto-Request Access
+            // Create the document with active: false
             await setDoc(userRef, {
               email: user.email,
-              active: false,
+              active: false, // Default to false, waiting for admin
               createdAt: new Date().toISOString(),
-              displayName: user.displayName,
-              photoURL: user.photoURL
+              displayName: user.displayName || '',
+              photoURL: user.photoURL || ''
             });
             
+            // Set state to pending
             setIsWhitelisted(false);
-            setIsPending(true); // Automatically pending
+            setIsPending(true);
           }
         } catch (error) {
-          console.error("Error verifying user in database:", error);
-          // On error, deny access for safety
+          console.error("Error checking user permissions:", error);
           setIsWhitelisted(false);
           setIsPending(false);
         } finally {
           setPermissionCheckLoading(false);
         }
       } else {
-        // No user logged in
+        // Not logged in
         setIsWhitelisted(false);
         setIsPending(false);
         setPermissionCheckLoading(false);
@@ -104,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading, isPending }}>
+    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, isPending, permissionCheckLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -11,7 +11,7 @@ interface LoginScreenProps {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
   const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading, isPending } = useAuth();
 
-  // State 1: Checking Database Permissions
+  // State 1: Checking Permissions (Loading)
   if (currentUser && permissionCheckLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -28,7 +28,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 2: Pending Approval (User is in DB, but active=false)
+  // State 2: Account Pending Approval
   if (currentUser && isPending) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -57,7 +57,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 3: Access Denied (Should rarely happen with auto-request, but good fallback)
+  // State 3: Access Denied (Fallback)
   if (currentUser && !isWhitelisted) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -86,7 +86,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 4: Not logged in
+  // State 4: Not Logged In
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
