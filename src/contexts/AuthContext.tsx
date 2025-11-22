@@ -15,46 +15,59 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isWhitelisted: boolean;
   permissionCheckLoading: boolean;
+  authError: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Collection Name to check in Firestore
+const COLLECTION_NAME = "allowed_users";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
   const [permissionCheckLoading, setPermissionCheckLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      setAuthError(null);
       
       if (user && user.email) {
         setPermissionCheckLoading(true);
+        const emailKey = user.email.toLowerCase().trim(); // Ensure consistent casing
+
         try {
-          // STRICT CHECK: Only look for existing document in Firestore
-          // Collection: allowed_users
-          // Document ID: user's email
-          const userRef = doc(db, "allowed_users", user.email);
+          console.log(`Checking Firestore Collection: ${COLLECTION_NAME} for Doc ID: ${emailKey}`);
+          
+          const userRef = doc(db, COLLECTION_NAME, emailKey);
           const docSnap = await getDoc(userRef);
 
           if (docSnap.exists()) {
             const data = docSnap.data();
-            // Check if the 'active' field is true
             if (data.active === true) {
-              console.log("User authorized:", user.email);
+              console.log("Access Granted.");
               setIsWhitelisted(true);
             } else {
-              console.log("User exists but is inactive:", user.email);
+              console.log("User found but active != true");
+              setAuthError("Account is inactive. Please ask admin to set active: true");
               setIsWhitelisted(false);
             }
           } else {
-            // Document does not exist -> User is not pre-filled -> DENY
-            console.log("User not found in whitelist:", user.email);
+            console.log("Document not found.");
+            setAuthError(`Email not found in '${COLLECTION_NAME}' database.`);
             setIsWhitelisted(false);
           }
-        } catch (error) {
-          console.error("Error checking permissions:", error);
+        } catch (error: any) {
+          console.error("Firestore Error:", error);
+          // Handle permission errors (common if rules are locked)
+          if (error.code === 'permission-denied') {
+            setAuthError("Database Permission Denied. Please check Firestore Security Rules.");
+          } else {
+            setAuthError(error.message || "Error connecting to database.");
+          }
           setIsWhitelisted(false);
         } finally {
           setPermissionCheckLoading(false);
@@ -72,9 +85,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async () => {
     try {
+      setAuthError(null);
       await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Error signing in with Google", error);
+    } catch (error: any) {
+      console.error("Error signing in", error);
+      setAuthError(error.message);
     }
   };
 
@@ -82,13 +97,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await firebaseSignOut(auth);
       setIsWhitelisted(false);
+      setAuthError(null);
     } catch (error) {
       console.error("Error signing out", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading }}>
+    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted, permissionCheckLoading, authError }}>
       {children}
     </AuthContext.Provider>
   );
@@ -100,4 +116,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

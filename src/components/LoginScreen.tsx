@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, PenLine, Loader2 } from 'lucide-react';
+import { ShieldAlert, PenLine, Loader2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -9,7 +9,7 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading } = useAuth();
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading, authError } = useAuth();
 
   // State 1: Checking Database (Loading)
   if (currentUser && permissionCheckLoading) {
@@ -21,15 +21,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             Verifying Access...
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            Checking permission database for<br/>
-            <span className="font-mono font-bold">{currentUser.email}</span>
+            Checking database for:<br/>
+            <span className="font-mono font-bold text-[#31d190]">{currentUser.email}</span>
           </p>
         </div>
       </div>
     );
   }
 
-  // State 2: Access Denied (Not in Database or Inactive)
+  // State 2: Access Denied (Not in Database or Error)
   if (currentUser && !isWhitelisted) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -40,14 +40,31 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
             {TRANSLATIONS.accessDeniedTitle[currentLang]}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
-            This email is not in the authorized list.<br/>
-            Please contact the administrator to add:
-            <br/>
-            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block select-all">
-              {currentUser.email}
-            </span>
-          </p>
+          
+          {/* Error / Debug Info */}
+          {authError ? (
+            <div className="mb-6 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">
+              <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm mb-1">
+                <AlertTriangle size={14} /> Debug Info:
+              </div>
+              <p className="text-xs text-red-500 dark:text-red-300 font-mono break-words">
+                {authError}
+              </p>
+            </div>
+          ) : (
+             <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
+              {TRANSLATIONS.accessDeniedDesc[currentLang]}
+             </p>
+          )}
+
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg mb-6 text-left">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1">You are logged in as:</p>
+            <p className="text-sm font-mono text-[#1E2A38] dark:text-slate-200 break-all">{currentUser.email}</p>
+            <p className="text-xs text-slate-400 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+              Required Collection: <span className="font-mono text-slate-500">allowed_users</span>
+            </p>
+          </div>
+
           <button
             onClick={logout}
             className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
