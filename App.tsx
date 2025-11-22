@@ -5,11 +5,14 @@ import { InputForm } from './components/InputForm';
 import { OutputDisplay } from './components/OutputDisplay';
 import { BrandManager } from './components/BrandManager';
 import { ApiKeyModal } from './components/ApiKeyModal';
+import { LoginScreen } from './components/LoginScreen';
 import { Language, Framework, Tone, ContentRequest, ContentPillar, BrandProfile } from './types';
 import { generateCopy } from './services/geminiService';
 import { TRANSLATIONS, DEFAULT_BRANDS } from './constants';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { currentUser, loading: authLoading, isWhitelisted } = useAuth();
   
   // UI Language default to English
   const [uiLanguage] = useState<Language>(Language.EN);
@@ -147,7 +150,20 @@ const App: React.FC = () => {
     }));
   };
 
-  // Main App (Direct Access - No Auth)
+  // AUTHENTICATION CHECK
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#31d190]"></div>
+      </div>
+    );
+  }
+
+  if (!currentUser || !isWhitelisted) {
+    return <LoginScreen currentLang={uiLanguage} />;
+  }
+
+  // Main App
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col font-sans transition-colors duration-300">
       {/* Show Key Modal */}
@@ -241,6 +257,14 @@ const App: React.FC = () => {
         </p>
       </footer>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

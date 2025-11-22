@@ -17,18 +17,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ==========================================
-// USER WHITELIST (လူပုဂ္ဂိုလ် ခွင့်ပြုစာရင်း)
-// ==========================================
-// Add authorized Gmail addresses here.
-// Only emails in this list can access the app.
-// နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
-const ALLOWED_EMAILS = [
-  'waiyanlarge@gmail.com',
-  'waiyanaung.mkt@gmail.com', // <--- Added explicitly
-  'admin@gmail.com',
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,19 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      if (user && user.email) {
-        // Normalize email: lowercase and trim spaces
-        const userEmail = user.email.toLowerCase().trim();
-        
-        console.log("Checking login for:", userEmail); 
-        console.log("Allowed list:", ALLOWED_EMAILS);
-
-        // Check if email exists in the allowed list
-        const allowed = ALLOWED_EMAILS.some(allowedEmail => 
-          allowedEmail.toLowerCase().trim() === userEmail
-        );
-        
-        setIsWhitelisted(allowed);
+      // Allow ANY logged in user (No whitelist restriction)
+      if (user) {
+        setIsWhitelisted(true);
       } else {
         setIsWhitelisted(false);
       }
@@ -64,7 +42,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
-      // alert("Failed to sign in. Please check your popup blocker or try again.");
     }
   };
 
