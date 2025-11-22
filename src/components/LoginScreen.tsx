@@ -21,7 +21,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             Verifying Access...
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            Checking database for:<br/>
+            Connecting to database for:<br/>
             <span className="font-mono font-bold text-[#31d190]">{currentUser.email}</span>
           </p>
         </div>
@@ -29,7 +29,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 2: Pending Approval
+  // State 2: Pending Approval (active: false)
   if (currentUser && isPending) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -38,16 +38,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             <Clock className="text-yellow-500" size={32} />
           </div>
           <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
-            {TRANSLATIONS.pendingTitle[currentLang]}
+            {TRANSLATIONS.pendingTitle[currentLang] || "Account Pending"}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed">
-            {TRANSLATIONS.pendingDesc[currentLang]}
+            {TRANSLATIONS.pendingDesc[currentLang] || "Your request has been sent. Please wait for admin approval."}
           </p>
           
           <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg mb-6 text-left">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-1">Your Account:</p>
             <p className="text-sm font-mono text-[#1E2A38] dark:text-slate-200 break-all">{currentUser.email}</p>
-            <p className="text-xs text-[#31d190] mt-1 font-bold">Status: Waiting for Admin</p>
+            <p className="text-xs text-orange-500 mt-1 font-bold flex items-center gap-1">
+               • Status: Pending Admin Action
+            </p>
           </div>
 
           <button
@@ -77,7 +79,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           {authError ? (
             <div className="mb-6 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">
               <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm mb-1">
-                <AlertTriangle size={14} /> Debug Info:
+                <AlertTriangle size={14} /> Error:
               </div>
               <p className="text-xs text-red-500 dark:text-red-300 font-mono break-words">
                 {authError}

@@ -21,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Collection Name to check in Firestore
+// Collection Name in Firebase Console
 const COLLECTION_NAME = "allowed_users";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -41,46 +41,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (user && user.email) {
         setPermissionCheckLoading(true);
-        const emailKey = user.email.toLowerCase().trim(); // Use consistent casing
+        // Use email as the Document ID (lowercase to avoid case issues)
+        const emailKey = user.email.toLowerCase().trim();
 
         try {
-          console.log(`Checking Firestore: ${COLLECTION_NAME} for ${emailKey}`);
-          
           const userRef = doc(db, COLLECTION_NAME, emailKey);
           const docSnap = await getDoc(userRef);
 
           if (docSnap.exists()) {
+            // User exists in DB, check if active
             const data = docSnap.data();
             if (data.active === true) {
-              console.log("Access Granted.");
-              setIsWhitelisted(true);
+              setIsWhitelisted(true); // Access Granted
             } else {
-              console.log("User exists but active is false (Pending).");
-              setIsPending(true);
+              setIsPending(true); // Access Pending (active is false)
             }
           } else {
-            // AUTO-REQUEST: Create the document if it doesn't exist
-            console.log("User not found. Creating request...");
+            // User NOT in DB -> Auto Request Access
             try {
               await setDoc(userRef, {
-                active: false,
+                active: false, // Default to inactive
                 email: user.email,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                uid: user.uid
               });
-              console.log("Request created.");
-              setIsPending(true);
+              setIsPending(true); // Show Pending screen
             } catch (createErr: any) {
               console.error("Error creating user request:", createErr);
-              setAuthError("Could not create account request. Check database permissions.");
+              setAuthError("Failed to submit access request. Database permissions might be restricted.");
             }
           }
         } catch (error: any) {
           console.error("Firestore Error:", error);
-          if (error.code === 'permission-denied') {
-            setAuthError("Database Permission Denied. Please check Firestore Security Rules.");
-          } else {
-            setAuthError(error.message || "Error connecting to database.");
-          }
+          setAuthError("Connection error. Please check your internet.");
         } finally {
           setPermissionCheckLoading(false);
         }
