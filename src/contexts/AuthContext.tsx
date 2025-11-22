@@ -34,16 +34,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user && user.email) {
         setPermissionCheckLoading(true);
         try {
+          // Reference to the specific user document in 'allowed_users' collection
+          // Document ID is the email address
           const userRef = doc(db, "allowed_users", user.email);
           const docSnap = await getDoc(userRef);
 
           if (docSnap.exists()) {
-            // User exists, check if active
+            // User exists in DB, check if they are active
             const data = docSnap.data();
             if (data.active === true) {
               setIsWhitelisted(true);
               setIsPending(false);
             } else {
+              // User is in DB but active is false (or missing)
               setIsWhitelisted(false);
               setIsPending(true); // Pending Admin Approval
             }
@@ -63,13 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } catch (error) {
           console.error("Error verifying user in database:", error);
-          // On error, default to false to be safe
+          // On error, deny access for safety
           setIsWhitelisted(false);
           setIsPending(false);
         } finally {
           setPermissionCheckLoading(false);
         }
       } else {
+        // No user logged in
         setIsWhitelisted(false);
         setIsPending(false);
         setPermissionCheckLoading(false);

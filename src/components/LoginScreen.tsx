@@ -9,9 +9,9 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading, isPending } = useAuth() as any;
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, permissionCheckLoading, isPending } = useAuth();
 
-  // State 1: Checking
+  // State 1: Checking Database Permissions
   if (currentUser && permissionCheckLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -21,14 +21,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             Verifying Access...
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            Checking database for {currentUser.email}
+            Checking permissions for {currentUser.email}
           </p>
         </div>
       </div>
     );
   }
 
-  // State 2: Pending Approval
+  // State 2: Pending Approval (User is in DB, but active=false)
   if (currentUser && isPending) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -57,7 +57,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
-  // State 3: Access Denied (Fallback for older records or rejected)
+  // State 3: Access Denied (Should rarely happen with auto-request, but good fallback)
   if (currentUser && !isWhitelisted) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
@@ -70,6 +70,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6">
             {TRANSLATIONS.accessDeniedDesc[currentLang]}
+            <br/>
+            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block">
+              {currentUser.email}
+            </span>
           </p>
           <button
             onClick={logout}
