@@ -31,13 +31,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Don't turn off loading yet, we need to check Firestore
         try {
           // Reference to: collection "admin_settings" -> document "whitelisted_emails"
-          // This matches your screenshot exactly
           const docRef = doc(db, "admin_settings", "whitelisted_emails");
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
             const data = docSnap.data();
-            // In your screenshot, the field is named "emails" and it is an array
+            // Field is named "emails" and it is an array
             const allowedEmails: string[] = data.emails || [];
             
             console.log("Checking user:", user.email);
@@ -71,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
+      alert("Error signing in: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   };
 
