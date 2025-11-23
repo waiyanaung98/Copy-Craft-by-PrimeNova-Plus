@@ -11,7 +11,7 @@ interface LoginScreenProps {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
   const { signInWithGoogle, currentUser, isWhitelisted, logout, loading } = useAuth();
 
-  // Loading State
+  // Loading State (Checking Database)
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center">

@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
-      alert("Error signing in: " + (error instanceof Error ? error.message : "Unknown error"));
+      // Alert removed to prevent popup spam, error logged to console
     }
   };
 
