@@ -37,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (docSnap.exists()) {
             const data = docSnap.data();
+            // In your screenshot, the field is named "emails" and it is an array
             const allowedEmails: string[] = data.emails || [];
             
             console.log("Checking user:", user.email);
