@@ -36,7 +36,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           <div className="text-slate-600 dark:text-slate-400 mb-6 space-y-4">
             <p>{TRANSLATIONS.accessDeniedDesc[currentLang]}</p>
             
+            {/* Viber Contact Button */}
             <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+              <p className="text-xs font-bold text-slate-500 uppercase mb-2">{TRANSLATIONS.purchaseInfo[currentLang]}</p>
               <a 
                 href="viber://chat?number=%2B66805631811" 
                 className="flex items-center justify-center gap-2 bg-[#7360f2] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#5e4ad1] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
@@ -94,7 +96,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             <span className="relative z-10">{TRANSLATIONS.signInGoogle[currentLang]}</span>
           </button>
           
-          {/* Purchase Info Section */}
+          {/* Purchase Info Section (Initial Screen) */}
           <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
               {TRANSLATIONS.purchaseInfo[currentLang]}

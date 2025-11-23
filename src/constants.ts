@@ -203,9 +203,9 @@ export const TRANSLATIONS = {
     [Language.TH]: 'ต้องสมัครสมาชิก'
   },
   accessDeniedDesc: {
-    [Language.EN]: 'To access this tool, please purchase a license. Contact us via Viber:',
-    [Language.MY]: 'ဤ Tool ကိုအသုံးပြုရန်အတွက် Viber မှတစ်ဆင့် ဆက်သွယ်ဝယ်ယူနိုင်ပါသည်။',
-    [Language.TH]: 'หากต้องการใช้งานเครื่องมือนี้ โปรดติดต่อเราทาง Viber:'
+    [Language.EN]: 'To access this tool, please purchase a license.',
+    [Language.MY]: 'ဤ Tool ကိုအသုံးပြုရန်အတွက် အသုံးပြုခွင့်ဝယ်ယူထားရန် လိုအပ်ပါသည်။',
+    [Language.TH]: 'หากต้องการใช้งานเครื่องมือนี้ โปรดซื้อลิขสิทธิ์การใช้งาน'
   },
   purchaseInfo: {
     [Language.EN]: 'To purchase access, contact Viber:',
