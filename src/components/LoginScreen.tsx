@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, PenLine, Phone, LogOut } from 'lucide-react';
+import { LogIn, ShieldAlert, PenLine, Phone, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';

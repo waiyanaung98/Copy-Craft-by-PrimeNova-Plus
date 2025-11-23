@@ -28,18 +28,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(user);
       
       if (user && user.email) {
-        setLoading(true);
+        // Don't turn off loading yet, we need to check Firestore
         try {
           // Reference to: collection "admin_settings" -> document "whitelisted_emails"
+          // This matches your screenshot exactly
           const docRef = doc(db, "admin_settings", "whitelisted_emails");
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
             const data = docSnap.data();
-            // Expecting a field named 'emails' which is an array of strings
             const allowedEmails: string[] = data.emails || [];
             
-            console.log("Fetched Whitelist:", allowedEmails); // Debugging log
+            console.log("Checking user:", user.email);
+            console.log("Allowed List from DB:", allowedEmails);
 
             // Check if user email is in the array (case insensitive)
             const isAllowed = allowedEmails.some(
@@ -48,20 +49,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             setIsWhitelisted(isAllowed);
           } else {
-            console.error("Whitelist document 'admin_settings/whitelisted_emails' not found in Firestore.");
-            // Default to false if document is missing, but allow specific owner email for safety if needed
-            // setIsWhitelisted(user.email === 'waiyanaung.mkt@gmail.com'); 
+            console.error("Whitelist document not found in Firestore. Please create 'admin_settings/whitelisted_emails'.");
             setIsWhitelisted(false);
           }
         } catch (error) {
           console.error("Error fetching whitelist from Firestore:", error);
           setIsWhitelisted(false);
         }
-        setLoading(false);
       } else {
         setIsWhitelisted(false);
-        setLoading(false);
       }
+      setLoading(false);
     });
 
     return unsubscribe;
@@ -72,7 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
-      alert("Sign in failed. Please try again.");
     }
   };
 
