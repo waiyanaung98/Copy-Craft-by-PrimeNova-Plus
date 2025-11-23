@@ -31,7 +31,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
           // Reference to: collection "admin_settings" -> document "whitelisted_emails"
-          // This matches your Firestore structure exactly.
           const docRef = doc(db, "admin_settings", "whitelisted_emails");
           const docSnap = await getDoc(docRef);
 
@@ -40,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Expecting a field named 'emails' which is an array of strings
             const allowedEmails: string[] = data.emails || [];
             
-            console.log("Allowed Emails fetched:", allowedEmails); // Debugging
+            console.log("Fetched Whitelist:", allowedEmails); // Debugging log
 
             // Check if user email is in the array (case insensitive)
             const isAllowed = allowedEmails.some(
@@ -49,7 +48,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             setIsWhitelisted(isAllowed);
           } else {
-            console.error("Whitelist document 'admin_settings/whitelisted_emails' not found.");
+            console.error("Whitelist document 'admin_settings/whitelisted_emails' not found in Firestore.");
+            // Default to false if document is missing, but allow specific owner email for safety if needed
+            // setIsWhitelisted(user.email === 'waiyanaung.mkt@gmail.com'); 
             setIsWhitelisted(false);
           }
         } catch (error) {
