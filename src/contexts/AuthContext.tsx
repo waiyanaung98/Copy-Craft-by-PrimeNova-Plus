@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // The field in Firestore is named "emails" (Array of strings)
             const allowedEmails: string[] = data.emails || [];
             
-            console.log("Checking user:", user.email);
+            console.log("Checking whitelist for:", user.email);
             
             // Check if user email is in the array (case insensitive)
             const isAllowed = allowedEmails.some(
@@ -48,8 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             setIsWhitelisted(isAllowed);
           } else {
-            console.error("Whitelist document not found in Firestore (admin_settings/whitelisted_emails).");
-            // Default to false if config is missing to be safe
+            console.error("Whitelist document (admin_settings/whitelisted_emails) not found in Firestore.");
+            // Default to false if config is missing for security
             setIsWhitelisted(false);
           }
         } catch (error) {

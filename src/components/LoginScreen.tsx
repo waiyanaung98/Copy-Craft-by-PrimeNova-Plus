@@ -11,7 +11,7 @@ interface LoginScreenProps {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
   const { signInWithGoogle, currentUser, isWhitelisted, logout, loading } = useAuth();
 
-  // Loading State (Checking Database)
+  // Loading State
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center">
@@ -39,7 +39,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           <div className="text-slate-600 dark:text-slate-400 mb-6 space-y-4">
             <p>{TRANSLATIONS.accessDeniedDesc[currentLang]}</p>
             
-            {/* Viber Contact Button */}
             <div className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 mt-4">
               <p className="text-xs font-bold text-slate-500 uppercase mb-3">{TRANSLATIONS.purchaseInfo[currentLang]}</p>
               <a 
