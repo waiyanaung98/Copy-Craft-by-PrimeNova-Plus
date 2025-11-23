@@ -17,18 +17,35 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// ==========================================
+// USER WHITELIST (လူပုဂ္ဂိုလ် ခွင့်ပြုစာရင်း)
+// ==========================================
+// Add authorized Gmail addresses here.
+// Only emails in this list can access the app.
+// နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
+const ALLOWED_EMAILS = [
+  'waiyanlarge@gmail.com',
+  'waiyanaung.mkt@gmail.com',  // <--- Added your specific email
+  'admin@gmail.com',
+];
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  // Default isWhitelisted to true once logged in, effectively disabling the whitelist
   const [isWhitelisted, setIsWhitelisted] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      if (user) {
-        // OPEN ACCESS: Allow ANY logged-in user
-        setIsWhitelisted(true);
+      if (user && user.email) {
+        // Check if email exists in the allowed list (case-insensitive and trimmed)
+        const userEmail = user.email.toLowerCase().trim();
+        const allowed = ALLOWED_EMAILS.some(e => e.toLowerCase().trim() === userEmail);
+        setIsWhitelisted(allowed);
+        
+        if (!allowed) {
+            console.log(`User ${userEmail} denied. Allowed list:`, ALLOWED_EMAILS);
+        }
       } else {
         setIsWhitelisted(false);
       }

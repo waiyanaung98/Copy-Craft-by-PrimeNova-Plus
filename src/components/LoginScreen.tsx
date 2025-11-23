@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogIn, ShieldAlert, PenLine } from 'lucide-react';
+import { LogIn, ShieldAlert, PenLine, Phone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -21,11 +21,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
             {TRANSLATIONS.accessDeniedTitle[currentLang]}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
+          <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
             {TRANSLATIONS.accessDeniedDesc[currentLang]}
             <br/>
-            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-2 inline-block">
-              {currentUser.email}
+            <a 
+              href="viber://chat?number=%2B66805631811" 
+              className="mt-3 inline-flex items-center gap-2 bg-[#7360f2] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#5e4ad1] transition-colors"
+            >
+              <Phone size={18} />
+              Viber: (+66) 80 563 1811
+            </a>
+            <br/>
+            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-4 inline-block text-slate-500">
+              Your ID: {currentUser.email}
             </span>
           </p>
           <button
@@ -73,7 +81,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
       </div>
       
       <p className="mt-8 text-sm text-slate-400">
-        Powered by <span className="text-[#31d190] font-bold">PrimeNova Digital Solution</span>
+        Powered by <a href="https://web.facebook.com/PrimeNovaDigitalSolution" target="_blank" rel="noopener noreferrer" className="text-[#31d190] font-bold hover:underline">PrimeNova Digital Solution</a>
       </p>
     </div>
   );

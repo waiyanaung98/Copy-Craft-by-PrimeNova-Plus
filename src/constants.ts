@@ -188,8 +188,8 @@ export const TRANSLATIONS = {
     [Language.TH]: 'ลบ Key'
   },
   loginDesc: {
-    [Language.EN]: 'Please sign in with your Google account to access CopyCraft.',
-    [Language.MY]: 'CopyCraft ကိုအသုံးပြုရန် Google အကောင့်ဖြင့် ဝင်ရောက်ပါ။',
+    [Language.EN]: 'Please sign in with your authorized Google account to access CopyCraft.',
+    [Language.MY]: 'CopyCraft ကိုအသုံးပြုရန် ခွင့်ပြုထားသော Google အကောင့်ဖြင့် ဝင်ရောက်ပါ။',
     [Language.TH]: 'กรุณาเข้าสู่ระบบด้วยบัญชี Google'
   },
   signInGoogle: {
@@ -198,14 +198,14 @@ export const TRANSLATIONS = {
     [Language.TH]: 'เข้าสู่ระบบด้วย Google'
   },
   accessDeniedTitle: {
-    [Language.EN]: 'Access Denied',
-    [Language.MY]: 'ခွင့်ပြုချက်မရှိပါ',
-    [Language.TH]: 'ถูกปฏิเสธการเข้าถึง'
+    [Language.EN]: 'Subscription Required',
+    [Language.MY]: 'အသုံးပြုခွင့်ဝယ်ယူရန် လိုအပ်သည်',
+    [Language.TH]: 'ต้องสมัครสมาชิก'
   },
   accessDeniedDesc: {
-    [Language.EN]: 'Your email address is not on the allowed list. Please contact the administrator.',
-    [Language.MY]: 'သင့် Email သည် ခွင့်ပြုစာရင်းထဲတွင်မရှိပါ။ Admin ကိုဆက်သွယ်ပါ။',
-    [Language.TH]: 'อีเมลของคุณไม่อยู่ในรายการที่อนุญาต'
+    [Language.EN]: 'To access this tool, please purchase a license. Contact us via Viber:',
+    [Language.MY]: 'ဤ Tool ကိုအသုံးပြုရန်အတွက် Viber မှတစ်ဆင့် ဆက်သွယ်ဝယ်ယူနိုင်ပါသည်။',
+    [Language.TH]: 'หากต้องการใช้งานเครื่องมือนี้ โปรดติดต่อเราทาง Viber:'
   },
   pendingTitle: {
     [Language.EN]: 'Account Pending Approval',
