@@ -5,18 +5,22 @@ import { InputForm } from './components/InputForm';
 import { OutputDisplay } from './components/OutputDisplay';
 import { BrandManager } from './components/BrandManager';
 import { ApiKeyModal } from './components/ApiKeyModal';
+import { LoginScreen } from './components/LoginScreen';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Language, Framework, Tone, ContentRequest, ContentPillar, BrandProfile } from './types';
 import { generateCopy } from './services/geminiService';
 import { DEFAULT_BRANDS } from './constants';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { currentUser, isWhitelisted, loading } = useAuth();
+  
   // UI Language default to English
   const [uiLanguage] = useState<Language>(Language.EN);
   
   // Theme State
   const [isDarkMode, setIsDarkMode] = useState(false);
   
-  // API Key State - Initialize from localStorage
+  // API Key State
   const [apiKey, setApiKey] = useState<string | null>(() => {
     return localStorage.getItem('gemini_api_key');
   });
@@ -40,18 +44,9 @@ const App: React.FC = () => {
     targetAudience: ''
   });
 
-  // Scroll to results when generated
   const resultRef = useRef<HTMLDivElement>(null);
 
-  // Effect: Check for API Key on mount
-  useEffect(() => {
-    if (!apiKey) {
-      // If no key is found in storage, force open the modal
-      setIsKeyModalOpen(true);
-    }
-  }, [apiKey]);
-
-  // Effect: Handle Dark Mode Class
+  // Effect: Handle Dark Mode
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -60,7 +55,7 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  // Effect: When brand changes, update formData defaults
+  // Effect: Handle Brand Defaults
   useEffect(() => {
     if (selectedBrandId) {
       const brand = brands.find(b => b.id === selectedBrandId);
@@ -69,18 +64,28 @@ const App: React.FC = () => {
           ...prev,
           tone: brand.defaultTone,
           targetAudience: brand.defaultAudience,
-          brand: brand // Attach brand object to request for AI context
+          brand: brand
         }));
       }
     } else {
-      // Reset brand context if deselected
       setFormData(prev => ({ ...prev, brand: undefined }));
     }
   }, [selectedBrandId, brands]);
 
+  // AUTHENTICATION GATE
+  // If loading, show nothing or spinner
+  if (loading) return <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div></div>;
+
+  // If not logged in OR not whitelisted, show Login Screen (which handles Access Denied UI internally)
+  if (!currentUser || !isWhitelisted) {
+    return <LoginScreen currentLang={uiLanguage} />;
+  }
+
+  // --- MAIN APP LOGIC (Only rendered if authenticated & whitelisted) ---
+
   const handleAddBrand = (newBrand: BrandProfile) => {
     setBrands(prev => [...prev, newBrand]);
-    setSelectedBrandId(newBrand.id); // Auto select the new brand
+    setSelectedBrandId(newBrand.id);
   };
 
   const handleDeleteBrand = (brandId: string) => {
@@ -109,13 +114,11 @@ const App: React.FC = () => {
     }
 
     setIsLoading(true);
-    setGeneratedContent(null); // Clear previous while loading
+    setGeneratedContent(null);
     
     try {
       const result = await generateCopy(formData, apiKey);
       setGeneratedContent(result);
-      
-      // Scroll to result after a brief delay for render
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
@@ -145,7 +148,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col font-sans transition-colors duration-300">
-      {/* Show Key Modal - Forced open if no key exists */}
       <ApiKeyModal 
         isOpen={isKeyModalOpen}
         onClose={() => apiKey && setIsKeyModalOpen(false)}
@@ -164,11 +166,7 @@ const App: React.FC = () => {
       />
 
       <main className="flex-grow w-full px-2 py-8">
-        
-        {/* Inputs Container - Centered with max width */}
         <div className="max-w-3xl mx-auto space-y-8 mb-12 px-2">
-          
-          {/* Brand Manager Section */}
           <section>
             <BrandManager 
               brands={brands}
@@ -180,7 +178,6 @@ const App: React.FC = () => {
             />
           </section>
 
-          {/* Framework Selection */}
           <section>
             <FrameworkSelector 
               selected={formData.framework} 
@@ -189,7 +186,6 @@ const App: React.FC = () => {
             />
           </section>
 
-          {/* Input Form */}
           <section>
             <InputForm 
               request={formData} 
@@ -202,7 +198,6 @@ const App: React.FC = () => {
           </section>
         </div>
 
-        {/* Output Container - Full Width (99%) */}
         <div ref={resultRef} className="w-full max-w-[99%] mx-auto">
           {generatedContent ? (
             <div className="animate-slide-up">
@@ -227,7 +222,6 @@ const App: React.FC = () => {
             </div>
           )}
         </div>
-
       </main>
       
       <footer className="py-6 text-center border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2A38] mt-auto transition-colors">
@@ -236,6 +230,15 @@ const App: React.FC = () => {
         </p>
       </footer>
     </div>
+  );
+};
+
+// Wrap AppContent with AuthProvider
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

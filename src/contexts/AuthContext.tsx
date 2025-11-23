@@ -5,7 +5,8 @@ import {
   signOut as firebaseSignOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, googleProvider, db } from '../firebase';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -13,39 +14,50 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isWhitelisted: boolean;
+  checkPermission: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// ==========================================
-// USER WHITELIST (လူပုဂ္ဂိုလ် ခွင့်ပြုစာရင်း)
-// ==========================================
-// Add authorized Gmail addresses here.
-// Only emails in this list can access the app.
-// နောက်ပိုင်း လူထပ်ထည့်ချင်ရင် ဒီမှာ Email ထပ်ဖြည့်ပြီး Save လိုက်ပါ။
-const ALLOWED_EMAILS = [
-  'waiyanlarge@gmail.com',
-  'waiyanaung.mkt@gmail.com',  // <--- Added your specific email
-  'admin@gmail.com',
-];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isWhitelisted, setIsWhitelisted] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      if (user && user.email) {
-        // Check if email exists in the allowed list (case-insensitive and trimmed)
-        const userEmail = user.email.toLowerCase().trim();
-        const allowed = ALLOWED_EMAILS.some(e => e.toLowerCase().trim() === userEmail);
-        setIsWhitelisted(allowed);
+  // Function to check database permissions
+  const checkDatabasePermission = async (user: User) => {
+    if (!user.email) return;
+    
+    try {
+      // Reference to: admin_settings -> whitelisted_emails
+      const docRef = doc(db, 'admin_settings', 'whitelisted_emails');
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const allowedEmails: string[] = data.emails || [];
         
-        if (!allowed) {
-            console.log(`User ${userEmail} denied. Allowed list:`, ALLOWED_EMAILS);
-        }
+        // Check if user's email is in the array (case insensitive)
+        const isAllowed = allowedEmails.some(
+          email => email.trim().toLowerCase() === user.email!.trim().toLowerCase()
+        );
+
+        setIsWhitelisted(isAllowed);
+      } else {
+        console.error("Whitelist document not found in Firestore!");
+        setIsWhitelisted(false);
+      }
+    } catch (error) {
+      console.error("Error fetching whitelist:", error);
+      setIsWhitelisted(false);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      if (user) {
+        await checkDatabasePermission(user);
       } else {
         setIsWhitelisted(false);
       }
@@ -66,13 +78,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await firebaseSignOut(auth);
+      setIsWhitelisted(false);
     } catch (error) {
       console.error("Error signing out", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, signInWithGoogle, logout, isWhitelisted }}>
+    <AuthContext.Provider value={{ 
+      currentUser, 
+      loading, 
+      signInWithGoogle, 
+      logout, 
+      isWhitelisted,
+      checkPermission: async () => { if(currentUser) await checkDatabasePermission(currentUser); }
+    }}>
       {children}
     </AuthContext.Provider>
   );

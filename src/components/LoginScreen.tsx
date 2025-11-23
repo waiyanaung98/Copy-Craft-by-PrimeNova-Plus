@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogIn, ShieldAlert, PenLine, Phone } from 'lucide-react';
+import { ShieldAlert, PenLine, Phone, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -9,37 +9,54 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
-  const { signInWithGoogle, currentUser, isWhitelisted, logout } = useAuth();
+  const { signInWithGoogle, currentUser, isWhitelisted, logout, loading } = useAuth();
 
+  // Loading State
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#31d190]"></div>
+      </div>
+    );
+  }
+
+  // CASE 1: Logged in BUT Not Whitelisted (ACCESS DENIED)
   if (currentUser && !isWhitelisted) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
         <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-red-100 dark:border-red-900/30">
-          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
             <ShieldAlert className="text-red-500" size={32} />
           </div>
+          
           <h2 className="text-2xl font-bold text-[#1E2A38] dark:text-white mb-2">
             {TRANSLATIONS.accessDeniedTitle[currentLang]}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-            {TRANSLATIONS.accessDeniedDesc[currentLang]}
-            <br/>
-            <a 
-              href="viber://chat?number=%2B66805631811" 
-              className="mt-3 inline-flex items-center gap-2 bg-[#7360f2] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#5e4ad1] transition-colors"
-            >
-              <Phone size={18} />
-              Viber: (+66) 80 563 1811
-            </a>
-            <br/>
-            <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded mt-4 inline-block text-slate-500">
-              Your ID: {currentUser.email}
-            </span>
-          </p>
+          
+          <div className="text-slate-600 dark:text-slate-400 mb-6 space-y-4">
+            <p>{TRANSLATIONS.accessDeniedDesc[currentLang]}</p>
+            
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+              <p className="text-sm font-semibold mb-2 text-[#1E2A38] dark:text-slate-300">Contact Sales:</p>
+              <a 
+                href="viber://chat?number=%2B66805631811" 
+                className="flex items-center justify-center gap-2 bg-[#7360f2] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#5e4ad1] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                <Phone size={20} />
+                Viber: (+66) 80 563 1811
+              </a>
+            </div>
+
+            <div className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 py-1 px-2 rounded inline-block">
+              Logged in as: <span className="font-mono text-[#1E2A38] dark:text-slate-200">{currentUser.email}</span>
+            </div>
+          </div>
+
           <button
             onClick={logout}
-            className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
           >
+            <LogOut size={16} />
             {TRANSLATIONS.signOut[currentLang]}
           </button>
         </div>
@@ -47,6 +64,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     );
   }
 
+  // CASE 2: Not Logged In (LOGIN SCREEN)
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4">
       <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-200 dark:border-slate-700">
@@ -68,14 +86,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           
           <button
             onClick={signInWithGoogle}
-            className="w-full py-4 px-6 rounded-xl bg-white border border-slate-300 dark:border-slate-600 text-[#1E2A38] font-bold shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-3 group"
+            className="w-full py-4 px-6 rounded-xl bg-white border border-slate-300 dark:border-slate-600 text-[#1E2A38] font-bold shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-3 group relative overflow-hidden"
           >
             <img 
               src="https://www.svgrepo.com/show/475656/google-color.svg" 
               alt="Google" 
-              className="w-6 h-6" 
+              className="w-6 h-6 relative z-10" 
             />
-            <span>{TRANSLATIONS.signInGoogle[currentLang]}</span>
+            <span className="relative z-10">{TRANSLATIONS.signInGoogle[currentLang]}</span>
           </button>
         </div>
       </div>
