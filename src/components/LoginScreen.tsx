@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, PenLine, Phone, LogOut } from 'lucide-react';
+import { LogIn, ShieldAlert, PenLine, Phone, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -37,7 +37,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             <p>{TRANSLATIONS.accessDeniedDesc[currentLang]}</p>
             
             <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-              <p className="text-sm font-semibold mb-2 text-[#1E2A38] dark:text-slate-300">Contact Sales:</p>
+              <p className="text-sm font-semibold mb-2 text-[#1E2A38] dark:text-slate-300">Contact Sales to Buy Access:</p>
               <a 
                 href="viber://chat?number=%2B66805631811" 
                 className="flex items-center justify-center gap-2 bg-[#7360f2] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#5e4ad1] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"

@@ -30,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       // Reference to: admin_settings -> whitelisted_emails
+      // This matches your Firestore structure exactly
       const docRef = doc(db, 'admin_settings', 'whitelisted_emails');
       const docSnap = await getDoc(docRef);
 
@@ -44,7 +45,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setIsWhitelisted(isAllowed);
       } else {
-        console.error("Whitelist document not found in Firestore!");
+        console.error("Whitelist document (admin_settings/whitelisted_emails) not found!");
+        // If document doesn't exist, nobody gets in (fail safe)
         setIsWhitelisted(false);
       }
     } catch (error) {

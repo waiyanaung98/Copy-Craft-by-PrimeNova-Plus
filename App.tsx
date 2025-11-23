@@ -20,7 +20,7 @@ const AppContent: React.FC = () => {
   // Theme State
   const [isDarkMode, setIsDarkMode] = useState(false);
   
-  // API Key State
+  // API Key State - Managed internally or could be fetched from DB later
   const [apiKey, setApiKey] = useState<string | null>(() => {
     return localStorage.getItem('gemini_api_key');
   });
@@ -73,8 +73,12 @@ const AppContent: React.FC = () => {
   }, [selectedBrandId, brands]);
 
   // AUTHENTICATION GATE
-  // If loading, show nothing or spinner
-  if (loading) return <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div></div>;
+  // If loading, show spinner
+  if (loading) return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#31d190]"></div>
+    </div>
+  );
 
   // If not logged in OR not whitelisted, show Login Screen (which handles Access Denied UI internally)
   if (!currentUser || !isWhitelisted) {
