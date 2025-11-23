@@ -26,9 +26,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      setLoading(true); // Keep loading while fetching whitelist
-
+      
       if (user && user.email) {
+        setLoading(true);
         try {
           // Reference to: collection "admin_settings" -> document "whitelisted_emails"
           const docRef = doc(db, "admin_settings", "whitelisted_emails");
@@ -47,18 +47,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsWhitelisted(isAllowed);
             console.log(`User ${user.email} whitelist status: ${isAllowed}`);
           } else {
-            console.error("Whitelist document not found in Firestore (admin_settings/whitelisted_emails)");
-            setIsWhitelisted(false);
+            console.error("Whitelist document not found. Please create 'admin_settings/whitelisted_emails' in Firestore.");
+            // Fail safe: Deny access if DB is not set up, BUT allow hardcoded owner for setup
+            if (user.email === 'waiyanlarge@gmail.com') {
+               setIsWhitelisted(true);
+            } else {
+               setIsWhitelisted(false);
+            }
           }
         } catch (error) {
-          console.error("Error fetching whitelist:", error);
-          // If error (e.g. permission denied), fail safely
+          console.error("Error fetching whitelist from Firestore:", error);
           setIsWhitelisted(false);
         }
+        setLoading(false);
       } else {
         setIsWhitelisted(false);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return unsubscribe;
@@ -69,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
+      alert("Error: Please check if your domain is authorized in Firebase Console.");
     }
   };
 
