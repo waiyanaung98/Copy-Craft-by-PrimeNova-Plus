@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogIn, ShieldAlert, PenLine, Phone, LogOut } from 'lucide-react';
+import { LogIn, ShieldAlert, PenLine, Phone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -25,7 +25,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center p-4">
         <div className="bg-white dark:bg-[#1E2A38] rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-red-100 dark:border-red-900/30">
-          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <ShieldAlert className="text-red-500" size={32} />
           </div>
           
@@ -37,7 +37,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             <p>{TRANSLATIONS.accessDeniedDesc[currentLang]}</p>
             
             <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-              <p className="text-sm font-semibold mb-2 text-[#1E2A38] dark:text-slate-300">Contact Sales to Buy Access:</p>
               <a 
                 href="viber://chat?number=%2B66805631811" 
                 className="flex items-center justify-center gap-2 bg-[#7360f2] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#5e4ad1] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
@@ -54,9 +53,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
 
           <button
             onClick={logout}
-            className="w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
-            <LogOut size={16} />
             {TRANSLATIONS.signOut[currentLang]}
           </button>
         </div>
@@ -95,6 +93,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             />
             <span className="relative z-10">{TRANSLATIONS.signInGoogle[currentLang]}</span>
           </button>
+          
+          {/* Purchase Info Section */}
+          <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
+              {TRANSLATIONS.purchaseInfo[currentLang]}
+            </p>
+            <a 
+              href="viber://chat?number=%2B66805631811" 
+              className="flex items-center justify-center gap-2 bg-[#7360f2]/10 text-[#7360f2] px-4 py-3 rounded-lg font-bold hover:bg-[#7360f2] hover:text-white transition-all border border-[#7360f2]/20"
+            >
+              <Phone size={18} />
+              Viber: (+66) 80 563 1811
+            </a>
+          </div>
         </div>
       </div>
       

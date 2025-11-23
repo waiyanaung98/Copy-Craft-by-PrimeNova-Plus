@@ -207,6 +207,11 @@ export const TRANSLATIONS = {
     [Language.MY]: 'ဤ Tool ကိုအသုံးပြုရန်အတွက် Viber မှတစ်ဆင့် ဆက်သွယ်ဝယ်ယူနိုင်ပါသည်။',
     [Language.TH]: 'หากต้องการใช้งานเครื่องมือนี้ โปรดติดต่อเราทาง Viber:'
   },
+  purchaseInfo: {
+    [Language.EN]: 'To purchase access, contact Viber:',
+    [Language.MY]: 'အသုံးပြုခွင့်ဝယ်ယူရန် Viber သို့ဆက်သွယ်ပါ -',
+    [Language.TH]: 'ติดต่อซื้อการใช้งานทาง Viber:'
+  },
   pendingTitle: {
     [Language.EN]: 'Account Pending Approval',
     [Language.MY]: 'ခွင့်ပြုချက်စောင့်ဆိုင်းနေသည်',
