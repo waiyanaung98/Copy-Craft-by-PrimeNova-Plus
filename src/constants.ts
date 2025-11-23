@@ -198,14 +198,14 @@ export const TRANSLATIONS = {
     [Language.TH]: 'เข้าสู่ระบบด้วย Google'
   },
   accessDeniedTitle: {
-    [Language.EN]: 'Subscription Required',
-    [Language.MY]: 'အသုံးပြုခွင့်ဝယ်ယူရန် လိုအပ်သည်',
-    [Language.TH]: 'ต้องสมัครสมาชิก'
+    [Language.EN]: 'Access Restricted',
+    [Language.MY]: 'ဝင်ရောက်ခွင့် ကန့်သတ်ထားပါသည်',
+    [Language.TH]: 'จำกัดการเข้าถึง'
   },
   accessDeniedDesc: {
-    [Language.EN]: 'To access this tool, please purchase a license.',
+    [Language.EN]: 'To access this tool, you need a subscription.',
     [Language.MY]: 'ဤ Tool ကိုအသုံးပြုရန်အတွက် အသုံးပြုခွင့်ဝယ်ယူထားရန် လိုအပ်ပါသည်။',
-    [Language.TH]: 'หากต้องการใช้งานเครื่องมือนี้ โปรดซื้อลิขสิทธิ์การใช้งาน'
+    [Language.TH]: 'หากต้องการใช้งานเครื่องมือนี้ จำเป็นต้องสมัครสมาชิก'
   },
   purchaseInfo: {
     [Language.EN]: 'To purchase access, contact Viber:',

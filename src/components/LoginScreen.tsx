@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, PenLine, Phone } from 'lucide-react';
+import { ShieldAlert, PenLine, Phone, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { TRANSLATIONS } from '../constants';
 import { Language } from '../types';
@@ -15,7 +15,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#31d190]"></div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#31d190]"></div>
+          <p className="text-slate-500 text-sm animate-pulse">Checking permissions...</p>
+        </div>
       </div>
     );
   }
@@ -37,26 +40,28 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
             <p>{TRANSLATIONS.accessDeniedDesc[currentLang]}</p>
             
             {/* Viber Contact Button */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-              <p className="text-xs font-bold text-slate-500 uppercase mb-2">{TRANSLATIONS.purchaseInfo[currentLang]}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 mt-4">
+              <p className="text-xs font-bold text-slate-500 uppercase mb-3">{TRANSLATIONS.purchaseInfo[currentLang]}</p>
               <a 
                 href="viber://chat?number=%2B66805631811" 
                 className="flex items-center justify-center gap-2 bg-[#7360f2] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#5e4ad1] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <Phone size={20} />
-                Viber: (+66) 80 563 1811
+                <span>Viber: (+66) 80 563 1811</span>
               </a>
             </div>
 
-            <div className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 py-1 px-2 rounded inline-block">
-              Logged in as: <span className="font-mono text-[#1E2A38] dark:text-slate-200">{currentUser.email}</span>
+            <div className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 py-1 px-3 rounded-full inline-flex items-center gap-2 mt-2">
+               <span>Signed in as:</span>
+               <span className="font-mono text-[#1E2A38] dark:text-slate-200 font-semibold">{currentUser.email}</span>
             </div>
           </div>
 
           <button
             onClick={logout}
-            className="w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
           >
+            <LogOut size={16} />
             {TRANSLATIONS.signOut[currentLang]}
           </button>
         </div>
@@ -79,7 +84,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           {TRANSLATIONS.appSubtitle[currentLang]}
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             {TRANSLATIONS.loginDesc[currentLang]}
           </p>
@@ -97,7 +102,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ currentLang }) => {
           </button>
           
           {/* Purchase Info Section (Initial Screen) */}
-          <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
+          <div className="pt-6 border-t border-slate-100 dark:border-slate-700">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
               {TRANSLATIONS.purchaseInfo[currentLang]}
             </p>

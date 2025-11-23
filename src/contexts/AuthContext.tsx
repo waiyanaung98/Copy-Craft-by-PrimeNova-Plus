@@ -31,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
           // Reference to: collection "admin_settings" -> document "whitelisted_emails"
+          // This matches your Firestore structure exactly.
           const docRef = doc(db, "admin_settings", "whitelisted_emails");
           const docSnap = await getDoc(docRef);
 
@@ -39,6 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Expecting a field named 'emails' which is an array of strings
             const allowedEmails: string[] = data.emails || [];
             
+            console.log("Allowed Emails fetched:", allowedEmails); // Debugging
+
             // Check if user email is in the array (case insensitive)
             const isAllowed = allowedEmails.some(
               (email) => email.trim().toLowerCase() === user.email!.trim().toLowerCase()
@@ -46,8 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             setIsWhitelisted(isAllowed);
           } else {
-            console.error("Whitelist document not found. Please create 'admin_settings/whitelisted_emails' in Firestore.");
-            // Fail safe: Deny access if DB is not set up
+            console.error("Whitelist document 'admin_settings/whitelisted_emails' not found.");
             setIsWhitelisted(false);
           }
         } catch (error) {
@@ -69,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
-      alert("Error: Please check if your domain is authorized in Firebase Console.");
+      alert("Sign in failed. Please try again.");
     }
   };
 
