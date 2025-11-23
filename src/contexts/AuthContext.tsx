@@ -45,15 +45,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             );
             
             setIsWhitelisted(isAllowed);
-            console.log(`User ${user.email} whitelist status: ${isAllowed}`);
           } else {
             console.error("Whitelist document not found. Please create 'admin_settings/whitelisted_emails' in Firestore.");
-            // Fail safe: Deny access if DB is not set up, BUT allow hardcoded owner for setup
-            if (user.email === 'waiyanlarge@gmail.com') {
-               setIsWhitelisted(true);
-            } else {
-               setIsWhitelisted(false);
-            }
+            // Fail safe: Deny access if DB is not set up
+            setIsWhitelisted(false);
           }
         } catch (error) {
           console.error("Error fetching whitelist from Firestore:", error);
